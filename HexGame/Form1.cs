@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -26,7 +27,7 @@ namespace HexGame
 			                            null,
 			                            panel1,
 			                            new object[] {true});
-			board = new HexGame.Board(7);
+			StartGame();
 		}
 
 		private void panel1_Paint(object sender, PaintEventArgs e)
@@ -181,7 +182,6 @@ namespace HexGame
 
 		private void panel1_MouseClick(object sender, MouseEventArgs e)
 		{
-			this.Text = e.Location.ToString();
 			if (hexagons == null)
 				return;
 
@@ -191,12 +191,57 @@ namespace HexGame
 				{
 					if (PointInPolygon(hexagons[x, y], e.Location))
 					{
-						if(board.Play(x, y))
-							this.Refresh();
+						if (board.Play(x, y))
+							UpdateBoard();
+
 						return;
 					}
 				}
 			}
+		}
+
+		void UpdateBoard()
+		{
+			label2.Text = "It's " + board.CurrentPlayer.ToString() + "'s Turn.";
+			this.Refresh();
+			button3.Enabled = board.GameHistory.TurnCount != 0;
+
+			button2.Enabled = board.GameHistory.TurnCount == 1;
+			label3.Enabled = board.GameHistory.TurnCount == 1;
+
+			if (board.GameHistory.Winner != Player.None)
+				label4.Text = board.GameHistory.Winner + " Wins!";
+			else
+				label4.Text = "";
+		}
+
+		void StartGame()
+		{ 
+			board = new HexGame.Board((int)numericUpDown1.Value);
+			UpdateBoard();
+		}
+
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			StartGame();
+		}
+
+		private void button3_Click(object sender, EventArgs e)
+		{
+			board.RevertLast();
+			UpdateBoard();
+		}
+
+		private void button2_Click(object sender, EventArgs e)
+		{
+			board.SwapColors();
+			UpdateBoard();
+		}
+
+		private void Form1_SizeChanged(object sender, EventArgs e)
+		{
+			panel1.Size = new Size(this.Size.Width - 16, this.Size.Height - 89);
 		}
 	}
 }

@@ -22,7 +22,7 @@ namespace HexGame
 		}
 	}
 
-	public class Move
+	public class Move : IEquatable<Move>
 	{
 		public int X;
 		public int Y;
@@ -33,6 +33,22 @@ namespace HexGame
 			X = x;
 			Y = y;
 			Player = player;
+		}
+		public int Id
+		{
+			get { return (X * 100 + Y) * 100 + (int) Player; }
+		}
+		public bool Equals(Move other)
+		{
+			return null != other && Id == other.Id;
+		}
+		public override bool Equals(object obj)
+		{
+			return Equals(obj as Move);
+		}
+		public override int GetHashCode()
+		{
+			return Id;
 		}
 	}
 
